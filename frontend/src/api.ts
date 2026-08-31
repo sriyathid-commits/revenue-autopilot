@@ -1,4 +1,4 @@
-import type { AuditEvent, DemoResponse, Evaluation, Incident, IncidentDetail, Metrics, TransactionListResponse } from "./types";
+import type { AuditEvent, DemoResponse, Evaluation, HumanReview, Incident, IncidentDetail, Metrics, TransactionListResponse } from "./types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -41,4 +41,10 @@ export const api = {
     if (params.status) q.set("status", params.status);
     return http<TransactionListResponse>(`/api/transactions?${q}`);
   },
+  reviews: () => http<{ total: number; items: HumanReview[] }>("/api/reviews"),
+  submitReview: (id: string, action: "APPROVE" | "REJECT", reason?: string) =>
+    http<{ ok: boolean; new_status: string; message: string; review: HumanReview }>(
+      `/api/reviews/${id}`,
+      { method: "POST", body: JSON.stringify({ action, reason: reason ?? "" }) },
+    ),
 };

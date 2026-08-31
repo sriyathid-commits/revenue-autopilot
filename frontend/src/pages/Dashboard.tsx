@@ -74,6 +74,21 @@ export default function Dashboard() {
     api.incidents().then((r) => setIncidents(r.items)).catch(() => undefined);
   }, [latestIncident]);
 
+  async function resetDemo() {
+    setBusy(true);
+    setError(null);
+    setDemo(null);
+    setVisible(0);
+    try {
+      await api.demoReset();
+      await load();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function runDemo() {
     setBusy(true);
     setError(null);
@@ -155,9 +170,32 @@ export default function Dashboard() {
             />
             <span style={{ color: "var(--muted)" }}>{connected ? "Live" : "Offline"}</span>
           </span>
-          <button className="btn" disabled={busy} onClick={runDemo}>
-            {busy ? "Running…" : "Run live demo"}
+          <button className="btn ghost" disabled={busy} onClick={resetDemo}>
+            ↻ Reset
           </button>
+          <button className="btn" disabled={busy} onClick={runDemo}>
+            {busy ? "Running…" : "▶ Run live demo"}
+          </button>
+        </div>
+      </div>
+
+      {/* Hero */}
+      <div className="hero-banner">
+        <div className="hero-tagline">Multi-Agent AI for Revenue Recovery</div>
+        <p className="hero-desc">
+          Detect revenue at risk, investigate payment failures, and recover eligible revenue
+          while keeping autonomous financial decisions behind deterministic safety controls.
+        </p>
+        <div className="hero-flow">
+          <span className="hero-step">AI proposes</span>
+          <span className="hero-arrow">→</span>
+          <span className="hero-step hero-step--guard">MoneyGuard evaluates</span>
+          <span className="hero-arrow">→</span>
+          <span className="hero-step">Policy authorizes</span>
+          <span className="hero-arrow">→</span>
+          <span className="hero-step hero-step--sim">Simulator executes</span>
+          <span className="hero-arrow">→</span>
+          <span className="hero-step hero-step--verify">Verification confirms</span>
         </div>
       </div>
 

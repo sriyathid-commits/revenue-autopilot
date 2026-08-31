@@ -8,34 +8,37 @@ from typing import Any
 from backend.models.transaction import RecoveryAction
 
 
+# Success probabilities tuned to produce ~35–50% overall recovery rate.
+# gateway_degradation is the "recoverable" demo path — kept at 0.72 so Demo A
+# clearly recovers. Other causes are lower to produce realistic mixed outcomes.
 SUCCESS_BY_CAUSE = {
     "gateway_degradation": {
-        RecoveryAction.ALTERNATE_PAYMENT.value: 0.86,
-        RecoveryAction.SAFE_RETRY.value: 0.28,
-        RecoveryAction.RECOVERY_MESSAGE.value: 0.18,
-        RecoveryAction.PERSONALIZED_OFFER.value: 0.22,
+        RecoveryAction.ALTERNATE_PAYMENT.value: 0.72,
+        RecoveryAction.SAFE_RETRY.value: 0.22,
+        RecoveryAction.RECOVERY_MESSAGE.value: 0.12,
+        RecoveryAction.PERSONALIZED_OFFER.value: 0.15,
     },
     "payment_method_failure": {
-        RecoveryAction.ALTERNATE_PAYMENT.value: 0.74,
-        RecoveryAction.SAFE_RETRY.value: 0.31,
+        RecoveryAction.ALTERNATE_PAYMENT.value: 0.48,
+        RecoveryAction.SAFE_RETRY.value: 0.18,
     },
     "customer_abandonment": {
-        RecoveryAction.PERSONALIZED_OFFER.value: 0.57,
-        RecoveryAction.RECOVERY_MESSAGE.value: 0.33,
-        RecoveryAction.SAFE_RETRY.value: 0.12,
+        RecoveryAction.PERSONALIZED_OFFER.value: 0.38,
+        RecoveryAction.RECOVERY_MESSAGE.value: 0.22,
+        RecoveryAction.SAFE_RETRY.value: 0.08,
     },
     "retry_problem": {
-        RecoveryAction.SAFE_RETRY.value: 0.64,
-        RecoveryAction.ALTERNATE_PAYMENT.value: 0.58,
-        RecoveryAction.RECOVERY_MESSAGE.value: 0.2,
+        RecoveryAction.SAFE_RETRY.value: 0.35,
+        RecoveryAction.ALTERNATE_PAYMENT.value: 0.30,
+        RecoveryAction.RECOVERY_MESSAGE.value: 0.12,
     },
     "temporary_failure": {
-        RecoveryAction.SAFE_RETRY.value: 0.71,
-        RecoveryAction.ALTERNATE_PAYMENT.value: 0.6,
+        RecoveryAction.SAFE_RETRY.value: 0.42,
+        RecoveryAction.ALTERNATE_PAYMENT.value: 0.36,
     },
     "risk_signal": {},
     "unknown": {
-        RecoveryAction.RECOVERY_MESSAGE.value: 0.15,
+        RecoveryAction.RECOVERY_MESSAGE.value: 0.10,
     },
 }
 

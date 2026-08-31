@@ -2,178 +2,149 @@
 
 [![Deploy to Render](https://render.com/images/deploy-to-render.svg)](https://render.com/deploy?repo=https://github.com/sriyathid-commits/revenue-autopilot)
 
-**Detect. Decide. Recover. Verify.**
+> **AI proposes. MoneyGuard evaluates. Policy authorizes. Simulator executes. Verification confirms.**
 
-Production-style fintech prototype for **AI Revenue Recovery**, with a secondary path into **AI Growth & Agentic Commerce**.
+**Live demo:** https://revenue-autopilott.vercel.app  
+**Backend API:** https://revenue-autopilot-backend.onrender.com  
+**API docs:** https://revenue-autopilot-backend.onrender.com/docs
 
-> This prototype uses synthetic/test-mode financial data and does not move real money.
+> This prototype uses synthetic/test-mode financial data and **does not move real money.**
+
+---
 
 ## Problem
 
-Failed payments, retries, and checkout abandonment leak GMV. Teams see dashboards, not a closed loop that can **detect** leakage, **explain** it, **decide** whether an action is safe, **recover** in a bounded way, and **verify** that recovered revenue is real.
+Failed payments, retries, and checkout abandonment leak GMV silently. Operations teams see dashboards but lack a closed loop that can **detect** leakage, **investigate** the cause, **decide** whether recovery is safe, **execute** it in a bounded way, and **verify** the outcome.
 
-## Business impact
-
-Operators get:
-
-- ₹ revenue at risk from actual failed/abandoned events
-- ₹ revenue recovered only after the recovery simulator confirms success
-- Recovery rate, human escalations, and stopped actions from the same pipeline
-- Proof the system is not blindly autonomous (unsafe retries are blocked)
+---
 
 ## Solution
 
-EVENT → DETECT → INVESTIGATE → ROOT CAUSE → MONEYGUARD → POLICY CHECK → RECOVERY → VERIFICATION → METRICS → AUDIT
-
-Every workflow has a `trace_id`. Agents return structured data (not chat). An optional LLM provider exists, but **no API key is required**.
-
-## Architecture
-
-- **Frontend:** React + TypeScript + Vite + Recharts (ops dashboard)
-- **Backend:** FastAPI + Pydantic + Uvicorn
-- **Data:** SQLite locally; `DATABASE_URL` can be PostgreSQL for Render
-- **Simulator:** Pandas/NumPy synthetic transactions with ground truth
-- **ML assist:** scikit-learn IsolationForest as supporting evidence only
+A multi-agent AI pipeline with deterministic safety controls — every recovery proposal goes through MoneyGuard before any action is authorized.
 
 ```
 EVENT
-  → Revenue Detector
-  → Payment Investigator + Customer Agent
-  → Root Cause Agent
-  → MoneyGuard
-  → Policy Engine
-  → Recovery Simulator (test mode)
-  → Verification Agent
+  → Revenue Detector        (detects at-risk clusters)
+  → Payment Investigator     (gateway/method/failure analysis)
+  → Customer Analyst         (intent + recovery probability)
+  → Root Cause Agent         (combines evidence → named cause)
+  → MoneyGuard               (AI SAFETY BOUNDARY — evaluates proposal)
+  → Policy Engine            (deterministic authorization)
+  → Recovery Simulator       (test-mode execution)
+  → Verification Agent       (confirms outcome, counts recovered ₹)
   → Metrics + Audit trail
 ```
 
-## Multi-agent system
+---
+
+## Key Features
+
+- **Multi-agent investigation** — 8 specialized agents, each with structured evidence
+- **Revenue-at-risk detection** — IsolationForest + rule-based clustering
+- **AI recovery proposals** — deterministic + optional LLM fallback
+- **MoneyGuard** — safety boundary; AI can never directly authorize money movement
+- **Policy Engine** — deterministic rules: risk, confidence, amount, retries
+- **Human Review queue** — uncertain/high-risk incidents routed to manual approval
+- **Audit trail** — full decision trace per incident, with agent confidence bars
+- **Real-time WebSocket stream** — live incident/transaction/agent events
+- **Idempotency** — duplicate recovery attempts are detected and blocked
+- **Test-mode recovery** — deterministic simulation, no real payment rails
+
+---
+
+## Demo A — Recoverable Revenue
+
+Gateway degradation on Razorpay test → Revenue Detector flags cluster → MoneyGuard approves alternate payment route → Policy authorizes → Simulator executes → Verification confirms → **₹ recovered**.
+
+## Demo B — Unsafe Action Blocked
+
+Suspicious rapid retries → Root Cause identifies risk signal → **MoneyGuard says STOP** → Policy blocks automatic action → Simulator executes NO_ACTION → **₹0 recovered**. This proves the system does not blindly retry every failure.
+
+---
+
+## Architecture
+
+| Layer | Technology |
+|---|---|
+| Frontend | React + TypeScript + Vite + Recharts |
+| Backend | FastAPI + Pydantic + Uvicorn |
+| Real-time | WebSocket + asyncio event bus |
+| Database | SQLite (local/Render) — `DATABASE_URL` for PostgreSQL |
+| Simulator | Pandas + NumPy synthetic transactions with ground truth |
+| ML assist | scikit-learn IsolationForest (supporting evidence only) |
+
+---
+
+## Multi-Agent System
 
 | Agent | Role |
-| --- | --- |
+|---|---|
 | Revenue Detector | Revenue at risk, clusters, confidence, evidence |
 | Payment Investigator | Gateway/method/failure/baseline/retries |
-| Customer Agent | Intent, conversion and recovery probability |
+| Customer Analyst | Intent, conversion and recovery probability |
 | Root Cause | Combines evidence into a named cause |
-| MoneyGuard | Allow, stop, or escalate — never executes money movement |
+| MoneyGuard | Allow, stop, or escalate — **never executes money movement** |
 | Policy Engine | Deterministic authorization |
+| Recovery Simulator | Test-mode execution |
 | Verification | Confirms simulator outcome before counting recovered ₹ |
 
-## MoneyGuard
+---
 
-AI can **propose**. MoneyGuard **evaluates**. Policy **authorizes**. The simulator **executes in test mode**. Verification **confirms**.
-
-Rules (deterministic):
+## MoneyGuard Rules (Deterministic)
 
 - HIGH RISK → HUMAN_REVIEW
 - LOW CONFIDENCE → HUMAN_REVIEW
 - SUSPICIOUS RETRY → STOP
-- VERY HIGH VALUE (single transaction) → HUMAN_REVIEW
+- VERY HIGH VALUE → HUMAN_REVIEW
 - DUPLICATE ACTION → STOP
 - HIGH CONFIDENCE + LOW RISK → bounded recovery action
 
-## Policy Engine
+---
 
-Evaluates risk, confidence, amount, retry count, customer risk, duplicate-action risk, and action type. Returns `allowed`, `action`, `risk_level`, `requires_human_review`, `reason`.
-
-## Recovery engine
-
-Test-mode only. Actions: `SAFE_RETRY`, `ALTERNATE_PAYMENT`, `PERSONALIZED_OFFER`, `RECOVERY_MESSAGE`, `STOP`, `HUMAN_REVIEW`. Success is simulated from root cause + action. Revenue is counted only if verification agrees.
-
-## Verification
-
-Checks payment outcome, recovered amount, duplicate recovery, policy compliance. Never claims recovery without simulator confirmation.
-
-## Synthetic data
-
-Statuses: `PAYMENT_STARTED`, `PAYMENT_SUCCESS`, `PAYMENT_FAILED`, `PAYMENT_RETRY`, `CHECKOUT_ABANDONED`, `SETTLEMENT_PENDING`, `SETTLEMENT_COMPLETED`.
-
-Scenarios: gateway degradation (4–5% → 15–20%), high-value checkout abandonment, repeated failures, suspicious retries, legitimate anomalies. Ground truth is stored for evaluation. Sizes: 100 / 1,000 / 10,000 / 50,000.
-
-## Evaluation
-
-Precision, recall, root-cause accuracy, recovery success rate, false intervention rate, human escalation rate, revenue at risk detected, revenue recovered — all from data.
-
-## Metrics
-
-Computed from the database: GMV, transactions, revenue at risk, potential recovery, revenue recovered, recovery rate, successful interventions, human escalations, stopped actions, false interventions, average investigation time. **Not hard-coded.**
-
-## Installation
+## Local Setup
 
 Requires Python 3.11+ and Node 20+.
 
 ```bash
-cd revenue-autopilot
+# Backend
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-# macOS/Linux: source .venv/bin/activate
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS/Linux
 pip install -r requirements.txt
-copy .env.example .env   # or cp .env.example .env
-```
-
-## Backend setup
-
-From the repository root:
-
-```bash
+copy .env.example .env
 uvicorn backend.main:app --reload --port 8000
-```
 
-API: http://127.0.0.1:8000  
-Docs: http://127.0.0.1:8000/docs  
-Health: http://127.0.0.1:8000/health
-
-## Frontend setup
-
-```bash
+# Frontend (separate terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-UI: http://127.0.0.1:5173  
+- API: http://127.0.0.1:8000
+- Docs: http://127.0.0.1:8000/docs
+- UI: http://127.0.0.1:5173
 
-Vite proxies `/api` and `/health` to the backend. For a deployed API set `VITE_API_URL`.
+---
 
-## Demo instructions
+## Deployment
 
-1. Start backend and frontend.
-2. Open the dashboard.
-3. Click **Run live demo**.
-4. **Demo A** injects gateway degradation; MoneyGuard may approve alternate payment; verification may credit recovered ₹.
-5. **Demo B** injects suspicious retries; MoneyGuard/policy stop automatic action; recovered ₹ stays 0.
-6. Inspect Incidents → investigation pipeline and audit trail.
-7. Open Evaluation for ground-truth scores.
+- **Frontend:** Vercel — root directory `frontend`, env var `VITE_API_URL=<render-url>`
+- **Backend:** Render — Docker, `render.yaml` blueprint
 
-## Screenshots
+---
 
-Capture the dashboard KPIs, live demo timeline, incident investigation pipeline, and evaluation page after running the live demo.
+## Safety
 
-## Limitations
-
-- No production payment processor, bank, or refunds
+- Synthetic/test-mode data only
+- No real payment processor, bank, or refunds
 - No real customer PII
-- LLM is optional and unused unless `OPENAI_API_KEY` is set
-- Recovery outcomes are simulated
-- SQLite is for local/hackathon use
+- LLM is optional — app works fully without `OPENAI_API_KEY`
+- Recovery outcomes are simulated deterministically
+- MoneyGuard + Policy Engine are deterministic layers — AI cannot bypass them
 
-## Future roadmap
+---
 
-- PostgreSQL on Render + Vercel frontend
-- Merchant SSO and role-based review queues
-- Webhooks from sandbox gateways
-- Offer catalog for personalized recovery
-- Longer-horizon causal evaluation
-
-## Hackathon track
+## Hackathon Track
 
 **Primary:** AI Revenue Recovery  
 **Secondary:** AI Growth & Agentic Commerce
-
-## Deployment readiness
-
-- Frontend: Vercel (`frontend/`, SPA rewrite in `vercel.json`)
-- Backend: Render / Docker (`Dockerfile`, `docker-compose.yml`)
-- Database: set `DATABASE_URL` to PostgreSQL; SQLAlchemy models are dialect-friendly
-
-Local functionality is the default. Do not connect production money rails.

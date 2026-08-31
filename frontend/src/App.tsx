@@ -1,12 +1,20 @@
 import { NavLink, Route, Routes } from "react-router-dom";
-import { Activity, CreditCard, Gauge, ShieldAlert, SlidersHorizontal } from "lucide-react";
+import { Activity, CreditCard, Gauge, ShieldAlert, SlidersHorizontal, UserCheck } from "lucide-react";
 import Dashboard from "./pages/Dashboard";
 import Incidents from "./pages/Incidents";
 import Investigation from "./pages/Investigation";
 import EvaluationPage from "./pages/Evaluation";
 import Transactions from "./pages/Transactions";
+import HumanReviewPage from "./pages/HumanReview";
 import LiveFeed from "./components/LiveFeed";
 import { RealtimeProvider } from "./context/RealtimeContext";
+import { useRealtime } from "./context/RealtimeContext";
+
+function ReviewBadge() {
+  // Show a red dot on the Human Review nav link when there are pending reviews.
+  // We use the latestIncident signal to know when to refresh.
+  return null; // Badge logic lives in page; keep nav simple for now.
+}
 
 export default function App() {
   return (
@@ -21,6 +29,9 @@ export default function App() {
             </NavLink>
             <NavLink to="/incidents">
               <Activity size={16} /> Incidents
+            </NavLink>
+            <NavLink to="/reviews">
+              <UserCheck size={16} /> Human Review
             </NavLink>
             <NavLink to="/transactions">
               <CreditCard size={16} /> Transactions
@@ -45,6 +56,7 @@ export default function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/incidents" element={<Incidents />} />
             <Route path="/incidents/:id" element={<Investigation />} />
+            <Route path="/reviews" element={<HumanReviewPage />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/evaluation" element={<EvaluationPage />} />
           </Routes>

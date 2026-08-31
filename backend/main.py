@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 
 from backend.api import demo, incidents, metrics, recovery, transactions
 from backend.api.audit import router as audit_router
+from backend.api.reviews import router as reviews_router
 from backend.api.ws import router as ws_router
 from backend.config import get_settings
 from backend.services.database import get_engine
@@ -64,6 +65,7 @@ app.include_router(recovery.router, prefix="/api")
 app.include_router(metrics.router, prefix="/api")
 app.include_router(demo.router, prefix="/api")
 app.include_router(audit_router, prefix="/api")
+app.include_router(reviews_router, prefix="/api")
 app.include_router(ws_router)          # mounts at /ws (no prefix)
 
 

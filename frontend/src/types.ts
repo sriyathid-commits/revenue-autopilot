@@ -241,3 +241,32 @@ export type TransactionListResponse = {
   total: number;
   items: TxRecord[];
 };
+
+// ---------------------------------------------------------------------------
+// Human Review
+// ---------------------------------------------------------------------------
+
+export type HumanReview = {
+  incident_id: string;
+  trace_id: string;
+  merchant_id: string;
+  amount: number;
+  currency: string;
+  root_cause: string | null;
+  risk_level: string;
+  action: string;
+  status: string;
+  confidence: number;
+  revenue_at_risk: number;
+  transaction_ids: string[];
+  created_at: string;
+  scenario: string | null;
+  moneyguard_decision: string;
+  moneyguard_reason: string;
+  policy_reason: string;
+  root_cause_explanation: string;
+  review_reason: string;
+  retry_count: number;
+  ai_recommendation: string;
+  review_completed: boolean;
+};

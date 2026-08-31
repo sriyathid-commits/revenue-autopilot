@@ -669,3 +669,291 @@ tr.clickable:hover {
   .eval-impact-grid { grid-template-columns: 1fr; }
   .risk-bar-wrap    { display: none; }
 }
+
+/* =====================================================================
+   Dashboard Hero Banner
+   ===================================================================== */
+
+.hero-banner {
+  background: linear-gradient(135deg, #0a1628 0%, #0d1f38 60%, #0a2040 100%);
+  border: 1px solid #1e3a6e;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.hero-tagline {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.hero-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 14px;
+  max-width: 620px;
+  line-height: 1.6;
+}
+
+.hero-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hero-step {
+  background: #0e1e38;
+  border: 1px solid #1e3a6e;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.hero-step--guard  { border-color: #5a3a8e; color: #c4a0ff; background: #140e28; }
+.hero-step--sim    { border-color: #1a5a4e; color: #3ee0a2; background: #0a1e18; }
+.hero-step--verify { border-color: #1a4a6e; color: #3d8bfd; background: #0a1628; }
+
+.hero-arrow {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* =====================================================================
+   Decision Trace — Investigation page
+   ===================================================================== */
+
+.trace-header {
+  margin-bottom: 0;
+}
+.trace-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.trace-header-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.trace-story {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  line-height: 1.6;
+}
+.trace-story--good { background: #0a1e14; border-color: #1a4a38; color: #3ee0a2; }
+.trace-story--bad  { background: #1a0a10; border-color: #4a1a28; color: #ff6b7a; }
+
+.trace-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.trace-stage-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.trace-stage {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+.trace-stage--good { border-color: #1a4a38; background: #081810; }
+.trace-stage--stop { border-color: #4a1a28; background: #180810; }
+
+.trace-stage-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.trace-stage-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.trace-stage-meta {
+  flex: 1;
+  min-width: 0;
+}
+.trace-stage-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+.trace-stage-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.trace-stage-explanation {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+.trace-stage-agent {
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+}
+
+.trace-connector {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0;
+}
+.trace-arrow {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 900px) {
+  .trace-header-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* =====================================================================
+   Human Review page
+   ===================================================================== */
+
+.review-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.review-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.15s;
+}
+.review-card--done {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.review-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.review-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.review-card-merchant {
+  font-size: 12px;
+  color: var(--muted);
+}
+.review-card-amount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--warn);
+  font-variant-numeric: tabular-nums;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: var(--panel-2);
+  border-radius: 8px;
+}
+.review-cell .label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.review-cell .value-sm {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.review-reason {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.review-reason .label {
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.btn-approve {
+  background: #0a3020;
+  border-color: #1a6040;
+  color: #3ee0a2;
+}
+.btn-approve:hover:not(:disabled) {
+  background: #0f4030;
+  border-color: #2a8060;
+}
+
+.btn-reject {
+  background: #2a0a10;
+  border-color: #601020;
+  color: #ff6b7a;
+}
+.btn-reject:hover:not(:disabled) {
+  background: #3a1020;
+  border-color: #801030;
+}
+
+.review-done {
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 700px) {
+  .review-grid { grid-template-columns: 1fr 1fr; }
+}
