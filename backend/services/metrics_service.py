@@ -35,13 +35,18 @@ def compute_metrics(session: Session) -> dict:
         IncidentRow.action == "STOP"
     ).scalar() or 0
 
-    false_interventions = (
-        session.query(func.count(IncidentRow.incident_id))
-        .join(TransactionRow, TransactionRow.transaction_id == func.json_extract(IncidentRow.transaction_ids_json, "$[0]"))
-        .filter(IncidentRow.revenue_recovered > 0, TransactionRow.ground_truth_should_recover.is_(False))
-        .scalar()
-    )
-    # Fallback without json_extract join for portability
+    try:
+        false_interventions = (
+            session.query(func.count(IncidentRow.incident_id))
+            .join(
+                TransactionRow,
+                TransactionRow.transaction_id == func.json_extract(IncidentRow.transaction_ids_json, "$[0]"),
+            )
+            .filter(IncidentRow.revenue_recovered > 0, TransactionRow.ground_truth_should_recover.is_(False))
+            .scalar()
+        )
+    except Exception:
+        false_interventions = None
     if false_interventions is None:
         false_interventions = _false_interventions(session)
 
@@ -103,8 +108,6 @@ def _avg_investigation_ms(session: Session) -> float:
 
 
 def _time_series(session: Session) -> dict:
-    from sqlalchemy import cast, Date
-
     day = func.date(TransactionRow.timestamp)
     at_risk = func.sum(
         case((TransactionRow.status.in_(AT_RISK), TransactionRow.amount), else_=0.0)

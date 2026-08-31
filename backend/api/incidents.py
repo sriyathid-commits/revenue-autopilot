@@ -12,6 +12,9 @@ from backend.services.transaction_service import parse_ids
 router = APIRouter()
 
 
+from backend.utils import sanitize_nan
+
+
 def _incident(row: IncidentRow) -> Incident:
     return Incident(
         incident_id=row.incident_id,
@@ -62,8 +65,8 @@ def get_incident(incident_id: str, db: Session = Depends(get_db)):
                 "confidence": a.confidence,
                 "decision": a.decision,
                 "explanation": a.explanation,
-                "evidence": json.loads(a.evidence_json or "{}"),
-                "payload": json.loads(a.payload_json or "{}"),
+                "evidence": sanitize_nan(json.loads(a.evidence_json or "{}")),
+                "payload": sanitize_nan(json.loads(a.payload_json or "{}")),
                 "ok": a.ok,
                 "error": a.error,
                 "timestamp": a.timestamp.isoformat(),
@@ -91,8 +94,8 @@ def get_agents(incident_id: str, db: Session = Depends(get_db)):
             "confidence": a.confidence,
             "decision": a.decision,
             "explanation": a.explanation,
-            "evidence": json.loads(a.evidence_json or "{}"),
-            "payload": json.loads(a.payload_json or "{}"),
+            "evidence": sanitize_nan(json.loads(a.evidence_json or "{}")),
+            "payload": sanitize_nan(json.loads(a.payload_json or "{}")),
             "ok": a.ok,
             "error": a.error,
             "timestamp": a.timestamp.isoformat(),

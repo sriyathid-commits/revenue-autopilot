@@ -31,8 +31,15 @@ def investigate_payments(
 
     baseline = df.copy()
     gw = str(cluster.get("gateway") if cluster else (focus["gateway"].mode().iloc[0] if not focus.empty else "unknown"))
-    gw_rate = float(baseline[baseline["gateway"] == gw]["status"].isin(AT_RISK).mean()) if len(baseline) else 0.0
-    other_rate = float(baseline[baseline["gateway"] != gw]["status"].isin(AT_RISK).mean()) if (baseline["gateway"] != gw).any() else gw_rate
+    import math
+    gw_rate_raw = baseline[baseline["gateway"] == gw]["status"].isin(AT_RISK).mean() if len(baseline) else 0.0
+    gw_rate = float(gw_rate_raw) if not pd.isna(gw_rate_raw) else 0.0
+    other_rate_raw = baseline[baseline["gateway"] != gw]["status"].isin(AT_RISK).mean() if (baseline["gateway"] != gw).any() else gw_rate
+    other_rate = float(other_rate_raw) if not pd.isna(other_rate_raw) else gw_rate
+    if math.isnan(gw_rate) or math.isinf(gw_rate):
+        gw_rate = 0.0
+    if math.isnan(other_rate) or math.isinf(other_rate):
+        other_rate = gw_rate
     method_counts = focus["payment_method"].value_counts().to_dict() if "payment_method" in focus else {}
     reasons = focus["failure_reason"].dropna().value_counts().to_dict() if "failure_reason" in focus else {}
     retries = int(focus["retry_count"].max()) if not focus.empty else 0

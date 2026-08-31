@@ -1,7 +1,8 @@
 """Revenue Autopilot API — synthetic/test-mode financial operations only."""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from backend.api import demo, incidents, metrics, recovery, transactions
 from backend.api.audit import router as audit_router
@@ -35,6 +36,14 @@ app.include_router(audit_router, prefix="/api")
 @app.on_event("startup")
 def startup() -> None:
     get_engine()
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception(_request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": type(exc).__name__},
+    )
 
 
 @app.get("/health")

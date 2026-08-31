@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Iterable
 
@@ -29,8 +28,8 @@ def _rng(seed: int | None) -> np.random.Generator:
     return np.random.default_rng(seed)
 
 
-def _tid() -> str:
-    return "txn_" + uuid.uuid4().hex[:16]
+def _tid(rng: np.random.Generator) -> str:
+    return "txn_" + "".join(f"{int(b):02x}" for b in rng.integers(0, 256, size=8))
 
 
 def _customer(rng: np.random.Generator) -> tuple[str, str, str]:
@@ -265,7 +264,7 @@ def _record(
     revenue_at_risk = round(amount, 2) if status in at_risk_statuses else 0.0
     merchant = str(rng.choice(MERCHANTS))
     return {
-        "transaction_id": _tid(),
+        "transaction_id": _tid(rng),
         "merchant_id": merchant,
         "customer_id": customer_id,
         "amount": round(amount, 2),
@@ -299,15 +298,44 @@ def dataframe_to_records(df: pd.DataFrame) -> list[dict]:
         ts = rec["timestamp"]
         if hasattr(ts, "to_pydatetime"):
             rec["timestamp"] = ts.to_pydatetime()
-        rec["ground_truth_anomaly"] = bool(rec["ground_truth_anomaly"])
-        rec["ground_truth_suspicious"] = bool(rec["ground_truth_suspicious"])
-        rec["ground_truth_should_recover"] = bool(rec["ground_truth_should_recover"])
-        rec["detected_anomaly"] = bool(rec.get("detected_anomaly") or False)
-        if rec.get("ground_truth_root_cause") is not None and not isinstance(rec["ground_truth_root_cause"], str):
-            rec["ground_truth_root_cause"] = None if pd.isna(rec["ground_truth_root_cause"]) else str(rec["ground_truth_root_cause"])
-        if rec.get("failure_reason") is not None and not isinstance(rec["failure_reason"], str):
-            rec["failure_reason"] = None if pd.isna(rec["failure_reason"]) else str(rec["failure_reason"])
+        if isinstance(rec.get("timestamp"), datetime) and rec["timestamp"].tzinfo is not None:
+            rec["timestamp"] = rec["timestamp"].replace(tzinfo=None)
+        rec["ground_truth_anomaly"] = _as_bool(rec.get("ground_truth_anomaly"))
+        rec["ground_truth_suspicious"] = _as_bool(rec.get("ground_truth_suspicious"))
+        rec["ground_truth_should_recover"] = _as_bool(rec.get("ground_truth_should_recover"))
+        rec["detected_anomaly"] = _as_bool(rec.get("detected_anomaly"))
+        rec["ground_truth_root_cause"] = _optional_str(rec.get("ground_truth_root_cause"))
+        rec["failure_reason"] = _optional_str(rec.get("failure_reason"))
+        rec["detected_root_cause"] = _optional_str(rec.get("detected_root_cause"))
+        rec["amount"] = float(rec["amount"])
+        rec["cart_value"] = float(rec["cart_value"])
+        rec["retry_count"] = int(rec.get("retry_count") or 0)
+        rec["risk_score"] = float(rec.get("risk_score") or 0)
+        rec["revenue_at_risk"] = float(rec.get("revenue_at_risk") or 0)
     return records
+
+
+def _as_bool(value: object, default: bool = False) -> bool:
+    if value is None:
+        return default
+    try:
+        if pd.isna(value):
+            return default
+    except (TypeError, ValueError):
+        pass
+    return bool(value)
+
+
+def _optional_str(value: object) -> str | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    text = str(value)
+    return text if text not in {"", "nan", "None", "<NA>"} else None
 
 
 def generate_many(sizes: Iterable[int] = (100, 1000), scenario: str = "mixed", seed: int = 42) -> dict[int, pd.DataFrame]:

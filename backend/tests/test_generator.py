@@ -1,6 +1,13 @@
 from simulator.generator import generate_transactions
 
 
+def test_same_seed_is_deterministic():
+    a = generate_transactions(n=80, scenario="demo_unsafe", seed=11)
+    b = generate_transactions(n=80, scenario="demo_unsafe", seed=11)
+    assert list(a["transaction_id"]) == list(b["transaction_id"])
+    assert list(a["amount"]) == list(b["amount"])
+
+
 def test_generate_supported_sizes():
     df = generate_transactions(n=100, scenario="normal", seed=1)
     assert len(df) == 100

@@ -9,7 +9,16 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || res.statusText);
+    try {
+      const parsed = JSON.parse(text) as { detail?: unknown };
+      const detail = parsed.detail;
+      throw new Error(typeof detail === "string" ? detail : text || res.statusText);
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        throw new Error(text || res.statusText);
+      }
+      throw err;
+    }
   }
   return res.json() as Promise<T>;
 }

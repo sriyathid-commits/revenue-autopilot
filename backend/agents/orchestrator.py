@@ -38,6 +38,9 @@ def new_incident_id() -> str:
     return "inc_" + uuid.uuid4().hex[:12]
 
 
+from backend.utils import sanitize_nan
+
+
 def persist_agent(session: Session, result: AgentResult) -> None:
     session.add(
         AgentResultRow(
@@ -47,8 +50,8 @@ def persist_agent(session: Session, result: AgentResult) -> None:
             confidence=result.confidence,
             decision=result.decision,
             explanation=result.explanation,
-            evidence_json=json.dumps(result.evidence, default=str),
-            payload_json=json.dumps(result.payload, default=str),
+            evidence_json=json.dumps(sanitize_nan(result.evidence), default=str),
+            payload_json=json.dumps(sanitize_nan(result.payload), default=str),
             timestamp=result.timestamp,
             ok=result.ok,
             error=result.error,
@@ -315,7 +318,7 @@ def run_incident_pipeline(
             }
         )
 
-    status = RecoveryStatus.VERIFIED if recovered > 0 else RecoveryStatus(policy.action.value if policy.action in {RecoveryAction.STOP, RecoveryAction.HUMAN_REVIEW} else RecoveryStatus.FAILED)
+    # RecoveryAction.STOP is not a RecoveryStatus member (use BLOCKED).
     if policy.action == RecoveryAction.STOP:
         status = RecoveryStatus.BLOCKED
     elif policy.action == RecoveryAction.HUMAN_REVIEW:
@@ -324,6 +327,8 @@ def run_incident_pipeline(
         status = RecoveryStatus.VERIFIED
     elif policy.allowed:
         status = RecoveryStatus.FAILED
+    else:
+        status = RecoveryStatus.BLOCKED
 
     incident = IncidentRow(
         incident_id=incident_id,
