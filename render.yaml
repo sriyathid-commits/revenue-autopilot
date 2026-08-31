@@ -5,29 +5,18 @@ services:
     dockerfilePath: ./Dockerfile
     plan: free
     region: singapore
-    # WebSocket connections require HTTP/1.1 — Render supports this on web services.
-    # The free tier keeps the service alive; no special flag needed.
     envVars:
       - key: PORT
-        value: 8000
+        value: "8000"
       - key: DATABASE_URL
         value: sqlite:////app/data/revenue_autopilot.db
       - key: APP_ENV
         value: production
       - key: CORS_ORIGINS
-        # Replace with your Vercel deployment URL after first deploy.
         value: https://revenue-autopilot.vercel.app,http://localhost:5173
       - key: HIGH_VALUE_THRESHOLD
-        value: 50000
+        value: "50000"
       - key: HIGH_RISK_THRESHOLD
-        value: 0.75
+        value: "0.75"
       - key: LOW_CONFIDENCE_THRESHOLD
-        value: 0.55
-      # Optional — app works without it (deterministic fallback).
-      # - key: OPENAI_API_KEY
-      #   value: sk-...
-
-    disk:
-      name: data
-      mountPath: /app/data
-      sizeGB: 1
+        value: "0.55"
