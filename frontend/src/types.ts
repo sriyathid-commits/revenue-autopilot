@@ -210,3 +210,34 @@ export type LiveEvent = {
   badge?: string;
   badgeClass?: string;
 };
+
+// ---------------------------------------------------------------------------
+// Transactions
+// ---------------------------------------------------------------------------
+
+export type TxRecord = {
+  transaction_id: string;
+  merchant_id: string;
+  customer_id: string;
+  amount: number;
+  currency: string;
+  payment_method: string;
+  gateway: string;
+  timestamp: string;
+  status: string;
+  failure_reason: string | null;
+  device_id: string;
+  customer_segment: string;
+  retry_count: number;
+  risk_score: number;
+  revenue_at_risk: number;
+  recovery_status: string;
+  recovery_action: string;
+  detected_anomaly: boolean;
+  ground_truth_anomaly: boolean;
+};
+
+export type TransactionListResponse = {
+  total: number;
+  items: TxRecord[];
+};

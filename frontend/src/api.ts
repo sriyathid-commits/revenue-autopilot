@@ -1,4 +1,4 @@
-import type { AuditEvent, DemoResponse, Evaluation, Incident, IncidentDetail, Metrics } from "./types";
+import type { AuditEvent, DemoResponse, Evaluation, Incident, IncidentDetail, Metrics, TransactionListResponse } from "./types";
 
 const BASE = import.meta.env.VITE_API_URL ?? "";
 
@@ -34,4 +34,11 @@ export const api = {
   demoRun: () => http<DemoResponse>("/api/demo/run", { method: "POST" }),
   demoReset: () => http<{ ok: boolean }>("/api/demo/reset", { method: "POST" }),
   recover: (id: string) => http<unknown>(`/api/recovery/${id}`, { method: "POST" }),
+  transactions: (params: { limit?: number; offset?: number; status?: string }) => {
+    const q = new URLSearchParams();
+    if (params.limit !== undefined) q.set("limit", String(params.limit));
+    if (params.offset !== undefined) q.set("offset", String(params.offset));
+    if (params.status) q.set("status", params.status);
+    return http<TransactionListResponse>(`/api/transactions?${q}`);
+  },
 };
