@@ -5,12 +5,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass  # Read-only filesystem (e.g. Render) — database.py uses DATABASE_URL env var directly
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
+    # On Render, DATABASE_URL is set via env var to sqlite:////app/data/...
+    # Locally it defaults to ./data/revenue_autopilot.db
     database_url: str = f"sqlite:///{(DATA_DIR / 'revenue_autopilot.db').as_posix()}"
     app_env: str = "local"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"

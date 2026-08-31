@@ -9,12 +9,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend ./backend
 COPY simulator ./simulator
 
-# Create the data directory — on Render this is replaced by the disk mount.
-# Locally it holds the SQLite file.
+# Create the data directory — on Render this path is used for SQLite
 RUN mkdir -p /app/data
 
 ENV PYTHONPATH=/app
+# Default port — Render overrides this with its own PORT env var
+ENV PORT=8000
 
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT}"]
