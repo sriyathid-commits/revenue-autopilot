@@ -9,7 +9,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from backend.agents import safe_agent
+from backend.agents import safe_agent, utcnow
 from backend.agents.customer_agent import analyze_customers
 from backend.agents.moneyguard_agent import evaluate_moneyguard
 from backend.agents.payment_agent import investigate_payments
@@ -82,7 +82,7 @@ def run_incident_pipeline(
     trace_id = new_trace_id()
     incident_id = new_incident_id()
     steps: list[dict[str, Any]] = []
-    now = datetime.utcnow()
+    now = utcnow()
     tx_ids = list(cluster.get("transaction_ids") or [])
     amount = float(cluster.get("revenue_at_risk") or 0.0)
     merchant = "unknown"
@@ -348,7 +348,7 @@ def run_incident_pipeline(
         policy_reason=policy.reason,
         verified=bool(ver_payload.get("verified")),
         created_at=now,
-        updated_at=datetime.utcnow(),
+        updated_at=utcnow(),
     )
     session.add(incident)
     mark_detected(session, tx_ids, root_cause)
@@ -380,7 +380,7 @@ def _step(title: str, result: AgentResult, extra: str | None = None) -> dict[str
         "agent": result.agent,
         "status": "ok" if result.ok else "fallback",
         "confidence": result.confidence,
-        "evidence": result.evidence,
+        "evidence": sanitize_nan(result.evidence),
         "explanation": result.explanation,
         "decision": extra or result.decision,
         "error": result.error,
