@@ -115,3 +115,98 @@ export type DemoResponse = {
   evaluation: Evaluation;
   message: string;
 };
+
+// ---------------------------------------------------------------------------
+// Real-time WebSocket event types
+// ---------------------------------------------------------------------------
+
+export type WSEventType =
+  | "connected"
+  | "ping"
+  | "incident"
+  | "agent_step"
+  | "metrics"
+  | "transaction"
+  | "system";
+
+export type WSBaseEvent = {
+  type: WSEventType;
+  ts: string;
+};
+
+export type WSConnectedEvent = WSBaseEvent & {
+  type: "connected";
+  message: string;
+  subscribers: number;
+};
+
+export type WSPingEvent = WSBaseEvent & {
+  type: "ping";
+};
+
+export type WSIncidentEvent = WSBaseEvent & {
+  type: "incident";
+  incident_id: string;
+  trace_id: string;
+  merchant_id: string;
+  root_cause: string;
+  action: string;
+  status: string;
+  revenue_at_risk: number;
+  revenue_recovered: number;
+  risk_level: string;
+  confidence: number;
+  scenario: string | null;
+};
+
+export type WSAgentStepEvent = WSBaseEvent & {
+  type: "agent_step";
+  incident_id: string;
+  trace_id: string;
+  agent: string;
+  event: string;
+  decision: string;
+  confidence: number;
+  ok: boolean;
+};
+
+export type WSMetricsEvent = WSBaseEvent & {
+  type: "metrics";
+  metrics: Metrics;
+};
+
+export type WSTransactionEvent = WSBaseEvent & {
+  type: "transaction";
+  transaction_id: string;
+  status: string;
+  amount: number;
+  gateway: string;
+  merchant_id: string;
+  risk_score: number;
+};
+
+export type WSSystemEvent = WSBaseEvent & {
+  type: "system";
+  message: string;
+  level: "info" | "warn" | "error";
+};
+
+export type WSEvent =
+  | WSConnectedEvent
+  | WSPingEvent
+  | WSIncidentEvent
+  | WSAgentStepEvent
+  | WSMetricsEvent
+  | WSTransactionEvent
+  | WSSystemEvent;
+
+/** A single entry shown in the LiveFeed panel. */
+export type LiveEvent = {
+  id: string;
+  ts: string;
+  kind: WSEventType;
+  label: string;
+  sub: string;
+  badge?: string;
+  badgeClass?: string;
+};

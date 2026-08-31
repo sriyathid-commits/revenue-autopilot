@@ -29,6 +29,7 @@ from backend.services.transaction_service import (
     parse_ids,
 )
 from backend.utils import sanitize_nan
+from backend.services import event_bus
 
 
 def new_trace_id() -> str:
@@ -110,6 +111,7 @@ def run_incident_pipeline(
     persist_agent(session, rev)
     log_audit(session, trace_id=trace_id, incident_id=incident_id, agent=rev.agent, event="ANOMALY_DETECTED", decision=rev.decision, evidence=rev.evidence)
     log_audit(session, trace_id=trace_id, incident_id=incident_id, agent=rev.agent, event="REVENUE_RISK_CALCULATED", decision=str(amount), evidence={"revenue_at_risk": amount})
+    event_bus.emit_agent_step(incident_id, trace_id, rev.agent, "ANOMALY_DETECTED", rev.decision, rev.confidence, rev.ok)
     steps.append(_step("ANOMALY DETECTED", rev))
     steps.append(_step("REVENUE AT RISK IDENTIFIED", rev, extra=f"₹{amount:,.2f}"))
 
@@ -122,6 +124,7 @@ def run_incident_pipeline(
     )
     persist_agent(session, pay)
     log_audit(session, trace_id=trace_id, incident_id=incident_id, agent=pay.agent, event="PAYMENT_INVESTIGATION", decision=pay.decision, evidence=pay.evidence)
+    event_bus.emit_agent_step(incident_id, trace_id, pay.agent, "PAYMENT_INVESTIGATION", pay.decision, pay.confidence, pay.ok)
     steps.append(_step("PAYMENT INVESTIGATION", pay))
 
     cust = safe_agent(
@@ -133,6 +136,7 @@ def run_incident_pipeline(
     )
     persist_agent(session, cust)
     log_audit(session, trace_id=trace_id, incident_id=incident_id, agent=cust.agent, event="CUSTOMER_ANALYSIS", decision=cust.decision, evidence=cust.evidence)
+    event_bus.emit_agent_step(incident_id, trace_id, cust.agent, "CUSTOMER_ANALYSIS", cust.decision, cust.confidence, cust.ok)
     steps.append(_step("CUSTOMER ANALYSIS", cust))
 
     rc = safe_agent(
@@ -144,6 +148,7 @@ def run_incident_pipeline(
     )
     persist_agent(session, rc)
     log_audit(session, trace_id=trace_id, incident_id=incident_id, agent=rc.agent, event="ROOT_CAUSE_IDENTIFIED", decision=rc.decision, evidence=rc.evidence)
+    event_bus.emit_agent_step(incident_id, trace_id, rc.agent, "ROOT_CAUSE_IDENTIFIED", rc.decision, rc.confidence, rc.ok)
     steps.append(_step("ROOT CAUSE FOUND", rc))
 
     root_cause = str(rc.payload.get("root_cause") or "unknown")
@@ -183,6 +188,7 @@ def run_incident_pipeline(
         action=str(mg.payload.get("action")),
         result=str(mg.payload.get("reason")),
     )
+    event_bus.emit_agent_step(incident_id, trace_id, mg.agent, "MONEYGUARD_DECISION", mg.decision, mg.confidence, mg.ok)
     steps.append(_step("MONEYGUARD", mg))
 
     proposed = RecoveryAction(str(mg.payload.get("action") or "HUMAN_REVIEW"))
@@ -354,6 +360,21 @@ def run_incident_pipeline(
     mark_detected(session, tx_ids, root_cause)
     mark_recovery(session, tx_ids, policy.action.value, status.value)
     session.flush()
+
+    # Broadcast the completed incident to all WebSocket subscribers.
+    event_bus.emit_incident(
+        incident_id=incident_id,
+        trace_id=trace_id,
+        merchant_id=merchant,
+        root_cause=root_cause,
+        action=policy.action.value,
+        status=status.value,
+        revenue_at_risk=amount,
+        revenue_recovered=recovered,
+        risk_level=str(incident.risk_level),
+        confidence=confidence,
+        scenario=scenario,
+    )
 
     return {
         "incident_id": incident_id,

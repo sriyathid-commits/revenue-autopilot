@@ -276,3 +276,126 @@ tr.clickable:hover {
     display: none;
   }
 }
+
+/* =====================================================================
+   Real-time LiveFeed sidebar widget
+   ===================================================================== */
+
+.live-feed {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.live-feed-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.live-feed-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.live-dot--on {
+  background: var(--good);
+  box-shadow: 0 0 6px var(--good);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.live-dot--off {
+  background: var(--bad);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.live-feed-list {
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.live-feed-empty {
+  color: var(--muted);
+  font-size: 11px;
+  text-align: center;
+  padding: 16px 12px;
+  margin: 0;
+}
+
+.live-feed-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+  animation: slide-in 0.18s ease;
+}
+
+.live-feed-row:last-child {
+  border-bottom: none;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.live-feed-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.live-feed-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.live-feed-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.live-feed-sub {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.live-feed-time {
+  font-size: 9px;
+  color: var(--muted);
+  font-family: var(--mono);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
