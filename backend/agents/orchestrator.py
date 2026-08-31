@@ -28,6 +28,7 @@ from backend.services.transaction_service import (
     mark_recovery,
     parse_ids,
 )
+from backend.utils import sanitize_nan
 
 
 def new_trace_id() -> str:
@@ -36,9 +37,6 @@ def new_trace_id() -> str:
 
 def new_incident_id() -> str:
     return "inc_" + uuid.uuid4().hex[:12]
-
-
-from backend.utils import sanitize_nan
 
 
 def persist_agent(session: Session, result: AgentResult) -> None:

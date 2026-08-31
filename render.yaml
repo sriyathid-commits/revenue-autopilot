@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: revenue-autopilot-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        value: sqlite:////app/data/revenue_autopilot.db

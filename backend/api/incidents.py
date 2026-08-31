@@ -8,11 +8,9 @@ from sqlalchemy.orm import Session
 from backend.models.incident import Incident, IncidentDetail
 from backend.services.database import AgentResultRow, IncidentRow, get_db
 from backend.services.transaction_service import parse_ids
+from backend.utils import sanitize_nan
 
 router = APIRouter()
-
-
-from backend.utils import sanitize_nan
 
 
 def _incident(row: IncidentRow) -> Incident:
