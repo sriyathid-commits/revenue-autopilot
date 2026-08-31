@@ -1,5 +1,7 @@
 # Revenue Autopilot
 
+[![Deploy to Render](https://render.com/images/deploy-to-render.svg)](https://render.com/deploy?repo=https://github.com/sriyathid-commits/revenue-autopilot)
+
 **Detect. Decide. Recover. Verify.**
 
 Production-style fintech prototype for **AI Revenue Recovery**, with a secondary path into **AI Growth & Agentic Commerce**.
